@@ -18,7 +18,7 @@ def env(t, tau, attack=0.02):
     return min(1.0, a) * math.exp(-t / tau)      # long, gentle bell decay
 
 
-def render(duration, fn, peak=0.55, release=0.35, lead=0.12):
+def render(duration, fn, peak=0.55, release=0.35, lead=0.15, fadein=0.09):
     n = int(SR * duration)
     rel = max(1, int(SR * release))
     xs = [fn(i / SR) for i in range(n)]
@@ -30,6 +30,11 @@ def render(duration, fn, peak=0.55, release=0.35, lead=0.12):
     hi = max((abs(x) for x in xs), default=1.0) or 1.0
     g = peak / hi
     body = [int(max(-1.0, min(1.0, x * g)) * 32767) for x in xs]
+    # Soft global fade-in — the tone emerges gently, so any residual device-wake
+    # crackle lands while it's still near-silent.
+    fin = max(1, int(SR * fadein))
+    for i in range(min(fin, len(body))):
+        body[i] = int(body[i] * (i / fin))
     # Lead-in silence so an idle/Bluetooth output wakes during silence, not on the
     # first note — that onset crackle is a device-wake glitch, not the waveform.
     body = [0] * int(SR * lead) + body
