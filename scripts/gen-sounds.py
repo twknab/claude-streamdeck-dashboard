@@ -18,9 +18,15 @@ def env(t, tau, attack=0.02):
     return min(1.0, a) * math.exp(-t / tau)      # long, gentle bell decay
 
 
-def render(duration, fn, peak=0.55):
+def render(duration, fn, peak=0.55, release=0.35):
     n = int(SR * duration)
+    rel = max(1, int(SR * release))
     xs = [fn(i / SR) for i in range(n)]
+    # Linear fade to *exactly* zero over the last `release` seconds. Without it the
+    # file ends while the exponential tail is still ringing (~20%), and that hard
+    # cut is a click/buzz. Fading to zero removes it.
+    for i in range(max(0, n - rel), n):
+        xs[i] *= (n - 1 - i) / rel
     hi = max((abs(x) for x in xs), default=1.0) or 1.0
     g = peak / hi
     return b"".join(struct.pack("<h", int(max(-1.0, min(1.0, x * g)) * 32767)) for x in xs)
@@ -62,6 +68,6 @@ def needs(t):
 
 out = os.path.join(os.path.dirname(__file__), "..", "com.tknab.claudeagents.sdPlugin", "sounds")
 os.makedirs(out, exist_ok=True)
-write(os.path.join(out, "done.wav"), render(1.3, done))
-write(os.path.join(out, "needs.wav"), render(2.4, needs))
+write(os.path.join(out, "done.wav"), render(1.5, done))
+write(os.path.join(out, "needs.wav"), render(2.6, needs))
 print("wrote", os.path.abspath(out))
