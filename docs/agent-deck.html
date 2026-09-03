@@ -1,0 +1,562 @@
+<title>Agent Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"
+/>
+<style>
+  :root {
+    /* committed dark "control surface" world — painted explicitly, holds on any host */
+    --ground: #0b0b11;
+    --ground-2: #0e0e15;
+    --surface: #14141c;
+    --surface-2: #191922;
+    --hair: #26262f;
+    --hair-2: #33333f;
+    --ink: #edecf2;
+    --muted: #9b9bab;
+    --faint: #6a6a78;
+    /* the status triad — semantic, only appears where it means something */
+    --work: #ffce38;
+    --work-2: #ea6a00;
+    --need: #ff4d6a;
+    --done: #2eee95;
+    --idle: #3a3a45;
+    --accent: var(--done);
+    --maxw: 1080px;
+    --r: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 620px at 78% -8%, rgba(46, 238, 149, 0.09), transparent 60%),
+      radial-gradient(900px 520px at 8% 4%, rgba(255, 206, 56, 0.07), transparent 55%),
+      var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  section { padding: 72px 0; border-top: 1px solid var(--hair); }
+  section:first-of-type { border-top: 0; }
+
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif; text-wrap: balance; margin: 0; }
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .lede { color: var(--muted); max-width: 62ch; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--done); outline-offset: 3px; border-radius: 6px; }
+
+  /* ---- hero ---- */
+  .hero { padding-top: 96px; padding-bottom: 40px; }
+  .hero h1 {
+    font-size: clamp(52px, 10vw, 116px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin: 18px 0 22px;
+  }
+  .hero h1 em { font-style: normal; color: var(--done); }
+  .hero .lede { font-size: clamp(18px, 2.4vw, 22px); }
+
+  .deck {
+    margin-top: 46px;
+    display: flex;
+    gap: clamp(14px, 3vw, 30px);
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .key { text-align: center; }
+  .key img {
+    width: clamp(92px, 17vw, 128px);
+    height: clamp(92px, 17vw, 128px);
+    display: block;
+    border-radius: 22px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  }
+  .key .cap {
+    margin-top: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* ---- legend ---- */
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 40px; }
+  .sig {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    background: linear-gradient(180deg, var(--surface), var(--ground-2));
+    border: 1px solid var(--hair);
+    border-radius: var(--r);
+  }
+  .sig img { width: 62px; height: 62px; border-radius: 13px; flex: 0 0 auto; }
+  .sig h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  .sig .name { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 3px; }
+  .sig.work .name { color: var(--work); }
+  .sig.need .name { color: var(--need); }
+  .sig.done .name { color: var(--done); }
+  .sig.idle .name { color: var(--muted); }
+  .sig p { margin: 6px 0 0; font-size: 14.5px; color: var(--muted); line-height: 1.5; }
+
+  .section-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 8px; }
+  .section-head h2 { font-size: clamp(30px, 5vw, 46px); font-weight: 700; letter-spacing: -0.02em; }
+  .section-head p { margin: 0; }
+
+  /* ---- pipeline ---- */
+  .pipe { display: grid; gap: 14px; margin-top: 40px; }
+  @media (min-width: 720px) { .pipe { grid-template-columns: repeat(5, 1fr); } }
+  .step {
+    position: relative;
+    padding: 22px 20px;
+    background: var(--surface);
+    border: 1px solid var(--hair);
+    border-radius: var(--r);
+  }
+  .step .n {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ground);
+    background: var(--done);
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .step p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+  .step code { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--work); background: rgba(255, 206, 56, 0.08); padding: 1px 5px; border-radius: 5px; }
+
+  /* ---- detail cards ---- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 18px; margin-top: 40px; }
+  .card {
+    padding: 24px;
+    background: linear-gradient(180deg, var(--surface), var(--ground-2));
+    border: 1px solid var(--hair);
+    border-radius: var(--r);
+  }
+  .card .k { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+  .card h3 { font-size: 19px; font-weight: 700; margin: 8px 0 10px; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 14.5px; color: var(--muted); }
+  .card p + p { margin-top: 10px; }
+  .card b { color: var(--ink); font-weight: 600; }
+  .card code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--done); word-break: break-word; }
+
+  /* ---- ship assessment ---- */
+  .ship { display: grid; gap: 20px; margin-top: 36px; }
+  @media (min-width: 760px) { .ship { grid-template-columns: 1.1fr 1fr; } }
+  .verdict {
+    padding: 28px;
+    border-radius: var(--r);
+    background: linear-gradient(180deg, rgba(46, 238, 149, 0.08), var(--ground-2));
+    border: 1px solid rgba(46, 238, 149, 0.28);
+  }
+  .verdict h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .verdict .tag { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--done); margin-bottom: 12px; }
+  .verdict p { color: var(--muted); font-size: 15px; margin: 10px 0 0; }
+  .todo { padding: 8px 0; }
+  .todo li { list-style: none; display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--hair); font-size: 14.5px; color: var(--muted); }
+  .todo li:last-child { border-bottom: 0; }
+  .todo .dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; margin-top: 7px; }
+  .todo b { color: var(--ink); font-weight: 600; }
+
+  /* ---- stack table + disk tree ---- */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 32px 0 30px; }
+  .chips span { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--hair); border-radius: 999px; padding: 7px 14px; }
+  .chips span i { color: var(--faint); font-style: normal; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--hair); border-radius: var(--r); }
+  table.stack { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 660px; }
+  table.stack th { text-align: left; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-weight: 700; padding: 14px 16px; background: var(--ground-2); border-bottom: 1px solid var(--hair); }
+  table.stack td { padding: 14px 16px; border-bottom: 1px solid var(--hair); color: var(--muted); vertical-align: top; line-height: 1.5; }
+  table.stack tr:last-child td { border-bottom: 0; }
+  table.stack td:first-child b { color: var(--ink); display: block; }
+  table.stack td:first-child span { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+  table.stack td code { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--work); word-break: break-all; }
+  table.stack td:nth-child(3) { font-family: "JetBrains Mono", monospace; color: var(--done); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .note { margin-top: 22px; font-size: 14px; color: var(--muted); }
+  .note code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--done); word-break: break-all; }
+  .tree { margin-top: 28px; overflow-x: auto; background: var(--ground-2); border: 1px solid var(--hair); border-radius: var(--r); padding: 22px 24px; font-family: "JetBrains Mono", monospace; font-size: 12.5px; line-height: 1.85; color: var(--muted); white-space: pre; }
+  .tree b { color: var(--ink); font-weight: 500; }
+  .tree i { color: var(--work); font-style: normal; }
+
+  /* ---- hooks truth table ---- */
+  table.events { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  table.events th { text-align: left; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-weight: 700; padding: 14px 16px; background: var(--ground-2); border-bottom: 1px solid var(--hair); }
+  table.events td { padding: 13px 16px; border-bottom: 1px solid var(--hair); color: var(--muted); vertical-align: middle; }
+  table.events tr:last-child td { border-bottom: 0; }
+  table.events td:first-child code { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink); }
+  table.events td:first-child .sub { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--work); display: block; margin-top: 3px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent; }
+  .pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; }
+  .pill.work { color: var(--work); background: rgba(255, 206, 56, 0.1); border-color: rgba(255, 206, 56, 0.28); }
+  .pill.work::before { background: var(--work); box-shadow: 0 0 9px var(--work); }
+  .pill.need { color: var(--need); background: rgba(255, 77, 106, 0.1); border-color: rgba(255, 77, 106, 0.3); }
+  .pill.need::before { background: var(--need); box-shadow: 0 0 9px var(--need); }
+  .pill.done { color: var(--done); background: rgba(46, 238, 149, 0.1); border-color: rgba(46, 238, 149, 0.28); }
+  .pill.done::before { background: var(--done); box-shadow: 0 0 9px var(--done); }
+  .pill.off { color: var(--muted); background: var(--surface); border-color: var(--hair); }
+  .pill.off::before { background: var(--idle); }
+
+  footer { border-top: 1px solid var(--hair); padding: 40px 0 64px; color: var(--faint); font-size: 13.5px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+  footer b { color: var(--muted); font-weight: 600; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+</style>
+
+<div class="wrap hero">
+  <div class="eyebrow">Stream Deck × Claude Code</div>
+  <h1>Agent&nbsp;Deck<em>.</em></h1>
+  <p class="lede">
+    Every Claude agent I'm running becomes a glowing key. It <b style="color:var(--work)">breathes</b> while it
+    works, <b style="color:var(--need)">pings</b> when it needs me, and holds <b style="color:var(--done)">green</b>
+    when it's done. One glance at the desk tells me where to look.
+  </p>
+  <div class="deck" id="hero-deck">
+    <div class="key"><img data-orb data-status="cooking" data-emoji="🐐" data-label="Author" alt="Working key" /><div class="cap">Working</div></div>
+    <div class="key"><img data-orb data-status="needs_me" data-emoji="🐢" data-label="Author" data-flash="1" alt="Needs-you key" /><div class="cap">Needs you</div></div>
+    <div class="key"><img data-orb data-status="done" data-emoji="🚂" data-label="Merger" alt="Done key" /><div class="cap">Done</div></div>
+    <div class="key"><img data-orb data-status="idle" data-emoji="🐇" data-label="Author" alt="Idle key" /><div class="cap">Idle</div></div>
+    <div class="key"><img data-orb data-cycle="1" data-emoji="🐙" data-label="Duo" alt="Cycling key" /><div class="cap">Live</div></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The signal language</div>
+      <h2>Color says what. Motion says how urgently.</h2>
+      <p class="lede">Four states, and only two of them move — so a mostly-still deck with one breathing key and one pinging key is instantly scannable.</p>
+    </div>
+    <div class="legend">
+      <div class="sig work">
+        <img data-orb data-status="cooking" data-emoji="🐐" data-label="" alt="" />
+        <div><div class="name">Working</div><h3>Breathing gold + shimmer</h3><p>Mid-turn, using tools. The orb pulses and a light sweeps across it, like Claude thinking. Leave it be.</p></div>
+      </div>
+      <div class="sig need">
+        <img data-orb data-status="needs_me" data-emoji="🐢" data-label="" data-flash="1" alt="" />
+        <div><div class="name">Needs you</div><h3>Crimson sonar + flash</h3><p>Blocked on your input or a permission. Rings ping outward and the rim breathes — the one state that earns real urgency.</p></div>
+      </div>
+      <div class="sig done">
+        <img data-orb data-status="done" data-emoji="🚂" data-label="" alt="" />
+        <div><div class="name">Done</div><h3>A pop, then it holds</h3><p>Finished a task and still alive. It flares green, then settles — a steady state you can rely on, distinct from a sleeping chat.</p></div>
+      </div>
+      <div class="sig idle">
+        <img data-orb data-status="idle" data-emoji="🐇" data-label="" alt="" />
+        <div><div class="name">Idle</div><h3>Dim, still, receding</h3><p>No live session behind that key. It fades into the deck so the lit keys keep your attention.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">How it works</div>
+      <h2>From a keystroke in Claude to a glow on the desk.</h2>
+      <p class="lede">Two halves that never call each other: Claude Code just drops small files as it lives its life, and a Stream Deck plugin reads them and paints. Loosely coupled, so nothing blocks.</p>
+    </div>
+    <div class="pipe">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>Hooks fire</h3>
+        <p>A tiny script wired to every Claude Code lifecycle event — <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>Stop</code> — decides a status. Global, so every session reports.</p>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3>Status files</h3>
+        <p>Each session writes one small JSON — status, emoji, timestamp — into <code>~/.claude/state</code>. One file per agent, no races.</p>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>The bridge</h3>
+        <p>The sidebar knows a chat by its <b>conversation</b> id; the hooks stamp files with the <b>transcript</b> id. A mapping file the app keeps stitches the two.</p>
+      </div>
+      <div class="step">
+        <div class="n">4</div>
+        <h3>The plugin paints</h3>
+        <p>A Node plugin reads the files once a second and repaints keys ~15× a second — each key a single animated SVG orb.</p>
+      </div>
+      <div class="step">
+        <div class="n">5</div>
+        <h3>Your deck</h3>
+        <p>One key per chat in a chosen sidebar group. Drag to arrange; press to jump back to Claude.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The hooks, event by event</div>
+      <h2>Eight lifecycle events, one script, four colors.</h2>
+      <p class="lede">This is the part that makes it possible at all. Claude Code can run a command on any moment of a session's life — I wired eight of them to the same tiny script. It reads the event on stdin, decides a status, writes one file. Here's the whole truth table.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="events">
+        <thead><tr><th>Hook event</th><th>Fires when</th><th>Becomes</th></tr></thead>
+        <tbody>
+          <tr><td><code>UserPromptSubmit</code></td><td>you send it a prompt</td><td><span class="pill work">Working</span></td></tr>
+          <tr><td><code>PreToolUse</code> · <code>PostToolUse</code></td><td>about to run / just ran a tool</td><td><span class="pill work">Working</span></td></tr>
+          <tr><td><code>PermissionRequest</code></td><td>it needs you to approve a tool</td><td><span class="pill need">Needs you</span></td></tr>
+          <tr><td><code>Notification</code><span class="sub">agent_needs_input</span></td><td>blocked, waiting on your answer</td><td><span class="pill need">Needs you</span></td></tr>
+          <tr><td><code>Notification</code><span class="sub">idle_prompt</span></td><td>finished, you've gone quiet ~60s</td><td><span class="pill done">Done&nbsp;*</span></td></tr>
+          <tr><td><code>Notification</code><span class="sub">agent_completed</span></td><td>the agent finished its work</td><td><span class="pill done">Done</span></td></tr>
+          <tr><td><code>Stop</code> · <code>SessionStart</code></td><td>a turn ends / a session opens</td><td><span class="pill done">Done</span></td></tr>
+          <tr><td><code>SessionEnd</code></td><td>the session closes for good</td><td><span class="pill off">Removes the key</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">* The one judgment call: I remapped <code>idle_prompt</code> — the "you went quiet after it finished" nudge — from red to <b style="color:var(--done)">green</b>, so 🔴 only ever means <b style="color:var(--ink)">genuinely blocked on you</b>, never just "you haven't replied yet."</p>
+    <div class="cards" style="margin-top: 30px;">
+      <div class="card">
+        <div class="k">The contract</div>
+        <h3>stdin in, one file out</h3>
+        <p>Every fire hands the script a JSON blob — <code>session_id</code>, <code>cwd</code>, <code>hook_event_name</code>. It writes <code>agent-status/&lt;id&gt;.json</code> atomically and <b>always exits 0</b>, so a hook can never block or break a turn.</p>
+      </div>
+      <div class="card">
+        <div class="k">Global by design</div>
+        <h3>Every session reports</h3>
+        <p>Wired once at the user level in <code>settings.json</code>, so <b>any</b> Claude Code session — any project, any window — lands on the deck automatically. Zero per-project setup.</p>
+      </div>
+      <div class="card">
+        <div class="k">Cheap</div>
+        <h3>Bash + jq, nothing else</h3>
+        <p>No Node, no network on the hot path — just <code>jq</code> reading stdin and an atomic file write. The latency it adds to a turn is imperceptible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The stack, byte by byte</div>
+      <h2>Small on purpose — one SDK, some SVG, and tiny text files.</h2>
+      <p class="lede">No database, no server, no image assets. The keys are SVG strings drawn on the fly; the two halves talk only through a handful of JSON files. The one heavy thing is the Elgato SDK folded into the bundle.</p>
+    </div>
+    <div class="chips">
+      <span>Node 20 <i>· Elgato's bundled runtime</i></span>
+      <span>@elgato/streamdeck 2.1.2</span>
+      <span>esbuild 0.28.2 → CJS</span>
+      <span>SVG data-URIs</span>
+      <span>0 runtime deps beyond the SDK</span>
+    </div>
+    <div class="tablewrap">
+      <table class="stack">
+        <thead><tr><th>Layer</th><th>Lives at</th><th>Size</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><b>Producer</b><span>bash hook</span></td><td><code>~/.claude/hooks/agent-status.sh</code></td><td>3.3 KB</td><td>Maps each Claude lifecycle event to a status and writes a file. 93 lines of bash&nbsp;+&nbsp;jq.</td></tr>
+          <tr><td><b>Bus</b><span>state</span></td><td><code>~/.claude/state/agent-status/&lt;id&gt;.json</code></td><td>~215 B</td><td>One file per live agent — status, emoji, timestamp. Deleted on session end.</td></tr>
+          <tr><td><b>Group</b><span>state</span></td><td><code>~/.claude/state/streamdeck-group.json</code></td><td>687 B</td><td>Which chats are on the deck, and their titles.</td></tr>
+          <tr><td><b>Bridge</b><span>app-owned</span></td><td><code>~/Library/…/Claude/claude-code-sessions/**/local_&lt;id&gt;.json</code></td><td>read-only</td><td>The desktop app's own map — conversation id → transcript id.</td></tr>
+          <tr><td><b>Plugin</b><span>source</span></td><td><code>~/Development/claude-agent-deck/src/plugin.js</code></td><td>15.6 KB</td><td>Poll, per-key binding, and the whole animation engine. 412 lines.</td></tr>
+          <tr><td><b>Plugin</b><span>bundle</span></td><td><code>…/sdPlugin/bin/plugin.js</code></td><td>604 KB</td><td>esbuild output Stream Deck runs — my code is ~4%, the SDK is the rest.</td></tr>
+          <tr><td><b>Manifest</b><span>plugin</span></td><td><code>…/sdPlugin/manifest.json</code></td><td>1.1 KB</td><td>Declares the one key action + the Node 20 runtime.</td></tr>
+          <tr><td><b>Skill</b><span>claude</span></td><td><code>~/.claude/skills/streamdeck-sync/</code></td><td>3.2 KB</td><td>Re-syncs the deck's chat list from a sidebar group.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-head" style="margin-top: 56px;">
+      <div class="eyebrow">Where it lives on disk</div>
+      <h2>Three homes on one Mac.</h2>
+      <p class="lede">Nothing is global or hidden — it's Claude's config folder, the app's data folder, and a normal project folder. Delete those and it's gone.</p>
+    </div>
+    <div class="tree"><b>~/.claude/</b>                              <i>Claude Code side — the producer</i>
+├─ hooks/agent-status.sh                writes status on every event
+├─ agent-emojis.json                    per-project emoji overrides
+├─ settings.json                        <i>the hooks block that wires it up</i>
+├─ skills/streamdeck-sync/              the /streamdeck-sync skill
+└─ state/
+   ├─ agent-status/*.json               <b>live status</b>, one file per agent
+   └─ streamdeck-group.json             the deck's chat list
+
+<b>~/Library/Application Support/Claude/</b>   <i>the app's own data — the bridge</i>
+└─ claude-code-sessions/**/local_*.json  conversation id ↔ transcript id
+
+<b>~/Development/claude-agent-deck/</b>         <i>the Stream Deck plugin — the consumer</i>
+├─ src/plugin.js                         <b>the source you edit</b>
+├─ com.tknab.claudeagents.sdPlugin/
+│  ├─ manifest.json
+│  └─ bin/plugin.js                      esbuild bundle (what runs)
+└─ package.json                          the build script
+
+<b>~/Library/…/com.elgato.StreamDeck/Plugins/</b>
+└─ com.tknab.claudeagents.sdPlugin  →    <i>symlink to the dev folder</i></div>
+    <p class="note">Stream Deck loads the plugin by that <b>symlink</b>, so <code>npm run build</code> + a restart is the entire edit loop — no reinstall.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Under the hood</div>
+      <h2>Four decisions that make it feel right.</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="k">Ordering</div>
+        <h3>Draggable, and it sticks</h3>
+        <p>Each key <b>owns</b> its chat through settings that travel with the key when you drag it. Rearrange the deck however you like — the arrangement survives restarts. No mirroring the sidebar, because that reorders itself by activity.</p>
+      </div>
+      <div class="card">
+        <div class="k">The gotcha</div>
+        <h3>Two ids, one chat</h3>
+        <p>The colors were dead at first: the group spoke <b>conversation ids</b>, the status files spoke <b>transcript ids</b>. The fix reads the desktop app's own map — <code>local_&lt;convId&gt;.json → cliSessionId</code> — live, so a resumed session still lines up.</p>
+      </div>
+      <div class="card">
+        <div class="k">Membership</div>
+        <h3>A one-word sync</h3>
+        <p>Run <code>/streamdeck-sync</code> and the deck mirrors whichever chats are in the group — emoji and label pulled straight from each chat's title, which you set as <code>{emoji} {short title}</code>.</p>
+      </div>
+      <div class="card">
+        <div class="k">The look</div>
+        <h3>Cross-fades for free</h3>
+        <p>The orb color eases toward its target every frame instead of snapping. So working <b>melts</b> into done, done holds, and any change reads as a smooth transition — one trick, every state.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Could this ship?</div>
+      <h2>On listing it in the Marketplace.</h2>
+      <p class="lede">Short answer: the concept absolutely could — and it packages in one command — but what's on the desk today is a personal tool wearing a beautiful coat. Here's the honest gap.</p>
+    </div>
+    <div class="ship">
+      <div class="verdict">
+        <div class="tag">Verdict · promising, not yet</div>
+        <h3>A great concept, a few days from shippable.</h3>
+        <p><code class="mono" style="color:var(--done)">streamdeck pack</code> already produces a <code class="mono" style="color:var(--done)">.streamDeckPlugin</code> installer, and Elgato's Marketplace takes free submissions through the Maker portal. The blocker isn't packaging — it's that this build assumes <b style="color:var(--ink)">my</b> machine.</p>
+        <p>It reads hand-installed Claude Code hooks, hard-codes macOS paths, and leans on an <b style="color:var(--ink)">undocumented</b> app file format for the id bridge — which could shift under any Claude update. Fine for me; fragile for strangers.</p>
+      </div>
+      <ul class="todo">
+        <li><span class="dot" style="background:var(--need)"></span><div><b>Set-up flow.</b> Ship the hooks for the user instead of assuming <code class="mono">~/.claude</code> is already wired.</div></li>
+        <li><span class="dot" style="background:var(--need)"></span><div><b>Cross-platform.</b> Windows paths + a graceful "no Claude Code found" state.</div></li>
+        <li><span class="dot" style="background:var(--work)"></span><div><b>Version the bridge.</b> Treat Claude's internal files as unstable — guard and degrade, don't crash.</div></li>
+        <li><span class="dot" style="background:var(--work)"></span><div><b>Property Inspector.</b> Let users pick the group and tune colors in the UI.</div></li>
+        <li><span class="dot" style="background:var(--done)"></span><div><b>Brand check.</b> Clear the "Claude" name &amp; mark against Anthropic's guidelines before anything public.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Built on a Stream Deck 3 + Neo, in an afternoon, with <b>Claude Code</b>.</span>
+    <span class="mono">green = done · gold = working · crimson = needs you</span>
+  </div>
+</footer>
+
+<script>
+  const S = 144, RAD = 30, CX = 72, CY = 66, TAU = Math.PI * 2;
+  const PAL = {
+    cooking: { c1: "#FFCE38", c2: "#EA6A00", accent: "#FFF3C4" },
+    needs_me: { c1: "#FF4D6A", c2: "#CE0A3E", accent: "#FFDCE3" },
+    done: { c1: "#2EEE95", c2: "#00A85A", accent: "#C6FFE2" },
+    idle: { c1: "#2A2A33", c2: "#0D0D12", accent: "#33333E" },
+  };
+  const esc = (s) => String(s).replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]));
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (x) => x * x * (3 - 2 * x);
+  const lerp = (a, b, m) => a + (b - a) * m;
+  const l3 = (A, B, m) => [lerp(A[0], B[0], m), lerp(A[1], B[1], m), lerp(A[2], B[2], m)];
+  const h2r = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const r2h = (a) => "#" + a.map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0")).join("");
+
+  function keyImage(status, emoji, label, t, age, disp, accent) {
+    const c1 = r2h(disp.c1), c2 = r2h(disp.c2);
+    const isWork = status === "cooking", isNeed = status === "needs_me", isDone = status === "done", isIdle = status === "idle";
+    const breathe = 0.5 + 0.5 * Math.sin(t * (TAU / 1.5));
+    let defs = "", g = "";
+    defs += `<clipPath id="rr"><rect x="3" y="3" width="${S - 6}" height="${S - 6}" rx="${RAD}"/></clipPath>`;
+    g += `<rect x="2" y="2" width="${S - 4}" height="${S - 4}" rx="${RAD + 1}" fill="#0A0A0E"/>`;
+    defs += `<radialGradient id="orb" gradientUnits="userSpaceOnUse" cx="${CX}" cy="42" r="120"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient>`;
+    g += `<g clip-path="url(#rr)"><rect x="3" y="3" width="${S - 6}" height="${S - 6}" fill="url(#orb)"/>`;
+    if (isWork) {
+      const lift = 0.08 + 0.4 * breathe;
+      defs += `<radialGradient id="glow" gradientUnits="userSpaceOnUse" cx="${CX}" cy="42" r="104"><stop offset="0" stop-color="#FFF" stop-opacity="${lift.toFixed(3)}"/><stop offset="1" stop-color="#FFF" stop-opacity="0"/></radialGradient>`;
+      g += `<rect x="3" y="3" width="${S - 6}" height="${S - 6}" fill="url(#glow)"/>`;
+      const ph = (t % 2.4) / 2.4, sx = -70 + ph * (S + 150);
+      defs += `<linearGradient id="shm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFF" stop-opacity="0"/><stop offset="0.5" stop-color="#FFF" stop-opacity="0.22"/><stop offset="1" stop-color="#FFF" stop-opacity="0"/></linearGradient>`;
+      g += `<g transform="translate(${sx.toFixed(1)},0) skewX(-16)"><rect x="-30" y="-24" width="60" height="${S + 48}" fill="url(#shm)"/></g>`;
+    }
+    if (isNeed) {
+      for (let i = 0; i < 2; i++) { const rp = ((t / 1.5) + i * 0.5) % 1, r = 22 + rp * 62, op = (1 - rp) * 0.55;
+        g += `<circle cx="${CX}" cy="${CY}" r="${r.toFixed(1)}" fill="none" stroke="${accent}" stroke-width="3.5" opacity="${op.toFixed(3)}"/>`; }
+    }
+    defs += `<linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF" stop-opacity="${isIdle ? "0.05" : "0.20"}"/><stop offset="0.5" stop-color="#FFF" stop-opacity="0"/></linearGradient>`;
+    g += `<rect x="3" y="3" width="${S - 6}" height="${(S - 6) * 0.55}" fill="url(#gloss)"/>`;
+    if (isDone && age < 0.6) { const a = ease(Math.min(1, age / 0.6)), r = 18 + a * 62;
+      g += `<circle cx="${CX}" cy="${CY}" r="${r.toFixed(1)}" fill="none" stroke="${PAL.done.accent}" stroke-width="${(4 * (1 - a)).toFixed(2)}" opacity="${((1 - a) * 0.75).toFixed(3)}"/><rect x="3" y="3" width="${S - 6}" height="${S - 6}" fill="#FFF" opacity="${((1 - a) * 0.32).toFixed(3)}"/>`; }
+    if (isNeed && age < 0.4) { const a = 1 - age / 0.4; g += `<rect x="3" y="3" width="${S - 6}" height="${S - 6}" fill="#FFF" opacity="${(a * 0.55).toFixed(3)}"/>`; }
+    defs += `<linearGradient id="scrim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.58"/></linearGradient>`;
+    if (label) g += `<rect x="3" y="${S - 54}" width="${S - 6}" height="51" fill="url(#scrim)"/>`;
+    const eScale = isWork ? (1 + 0.05 * breathe).toFixed(3) : "1";
+    g += `<g transform="translate(${CX} ${CY + 2}) scale(${eScale}) translate(${-CX} ${-(CY + 2)})"><text x="${CX}" y="${CY + 2}" font-size="64" text-anchor="middle" dominant-baseline="central" opacity="${disp.eOp.toFixed(3)}">${esc(emoji)}</text></g>`;
+    if (label) {
+      const cap = esc(label.slice(0, 11)), capFill = disp.eOp < 0.7 ? "#8A8A96" : "#FFFFFF";
+      g += `<text x="${CX}" y="${S - 18}" font-size="21" font-weight="600" font-family="Helvetica" fill="#000" fill-opacity="0.45" text-anchor="middle">${cap}</text><text x="${CX}" y="${S - 19}" font-size="21" font-weight="600" font-family="Helvetica" fill="${capFill}" text-anchor="middle">${cap}</text>`;
+    }
+    g += `</g>`;
+    defs += `<linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF" stop-opacity="0.18"/><stop offset="1" stop-color="#FFF" stop-opacity="0"/></linearGradient>`;
+    g += `<rect x="3.5" y="3.5" width="${S - 7}" height="${S - 7}" rx="${RAD - 1}" fill="none" stroke="url(#rim)" stroke-width="1.5"/>`;
+    if (isNeed) { const ro = 0.4 + 0.55 * breathe; g += `<rect x="4" y="4" width="${S - 8}" height="${S - 8}" rx="${RAD - 1}" fill="none" stroke="${PAL.needs_me.c1}" stroke-width="3" opacity="${ro.toFixed(3)}"/>`; }
+    return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}"><defs>${defs}</defs>${g}</svg>`);
+  }
+
+  const tl = (status) => { const p = PAL[status] || PAL.idle; return { c1: h2r(p.c1), c2: h2r(p.c2), eOp: status === "idle" ? 0.55 : 1, accent: p.accent }; };
+  const CYCLE = ["cooking", "cooking", "done", "idle", "needs_me"];
+  const orbs = [...document.querySelectorAll("[data-orb]")].map((el) => ({
+    el, emoji: el.dataset.emoji || "", label: el.dataset.label || "",
+    cycle: el.dataset.cycle === "1", flash: el.dataset.flash === "1",
+    status: el.dataset.status || "cooking", disp: null, since: 0, ci: 0,
+  }));
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const t0 = performance.now();
+
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    for (const o of orbs) {
+      if (o.cycle) {
+        const per = 3.4;
+        const idx = Math.floor(t / per) % CYCLE.length;
+        if (idx !== o.ci) { o.ci = idx; o.status = CYCLE[idx]; o.since = t; }
+      }
+      const target = tl(o.status);
+      if (!o.disp) o.disp = { c1: target.c1.slice(), c2: target.c2.slice(), eOp: target.eOp };
+      else { const K = 0.16; o.disp.c1 = l3(o.disp.c1, target.c1, K); o.disp.c2 = l3(o.disp.c2, target.c2, K); o.disp.eOp = lerp(o.disp.eOp, target.eOp, K); }
+      let age = o.cycle ? t - o.since : 999;
+      if (o.flash && !o.cycle) age = t % 3.2; // periodically re-trigger the needs-you flash
+      o.el.src = keyImage(o.status, o.emoji, o.label, t, age, o.disp, target.accent);
+    }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  if (reduce) {
+    // single static frame, settled colors
+    for (const o of orbs) { const tg = tl(o.status); o.disp = { c1: tg.c1, c2: tg.c2, eOp: tg.eOp }; o.el.src = keyImage(o.status, o.emoji, o.label, 0.4, 999, o.disp, tg.accent); }
+  } else {
+    requestAnimationFrame(frame);
+  }
+</script>

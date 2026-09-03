@@ -1,0 +1,5 @@
+node_modules/
+com.tknab.claudeagents.sdPlugin/bin/
+com.tknab.claudeagents.sdPlugin/logs/
+*.log
+.DS_Store

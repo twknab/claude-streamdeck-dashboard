@@ -1,0 +1,7 @@
+{
+  "_comment": "Optional. Maps a project folder name to an emoji, used ONLY by the auto-fill fallback (when there is no sidebar group file). In group mode the emoji comes from each chat's title instead. Copy this to ~/.claude/agent-emojis.json and edit to taste.",
+  "my-app": "🚀",
+  "api": "🛰️",
+  "website": "🌐",
+  "infra": "🧱"
+}
