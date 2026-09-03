@@ -1,7 +1,7 @@
 import streamDeck, { SingletonAction } from "@elgato/streamdeck";
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { execFile } from "node:child_process";
 
 const STATE = join(homedir(), ".claude", "state");
@@ -295,6 +295,20 @@ const disp = new Map(); // action id -> { c1:[r,g,b], c2:[r,g,b], eOp } smoothed
 const lastImg = new Map(); // action id -> last data-uri pushed (skip static redraws)
 let flashStart = 0; // ms — when a chat last turned red (drives the deck-wide flash)
 
+// --- chimes -----------------------------------------------------------------
+// WAVs bundled next to the plugin; delete one to silence that chime. Debounced
+// so a burst of agents changing at once doesn't stack into noise.
+const SOUND_DIR = join(dirname(process.argv[1] || ""), "..", "sounds");
+const soundAt = { needs: 0, done: 0 };
+function playSound(name) {
+  const now = Date.now();
+  if (now - (soundAt[name] || 0) < 1200) return;
+  const f = join(SOUND_DIR, `${name}.wav`);
+  if (!existsSync(f)) return; // no file → silently no chime
+  soundAt[name] = now;
+  execFile("/usr/bin/afplay", [f], () => {});
+}
+
 class AgentSlot extends SingletonAction {
   manifestId = "com.tknab.claudeagents.slot";
 
@@ -399,7 +413,11 @@ function paintFrame() {
     let info = trans.get(key.id);
     if (!info || info.sig !== sig) {
       const prev = info ? info.sig.split("|")[0] : null;
-      if (info && prev !== "needs_me" && status === "needs_me") flashStart = now; // fresh red → flash the deck
+      if (info && prev !== "needs_me" && status === "needs_me") {
+        flashStart = now; // fresh red → flash the deck…
+        playSound("needs"); // …and a zen nudge
+      }
+      if (info && prev === "cooking" && status === "done") playSound("done"); // a task just finished
       info = { sig, since: now };
       trans.set(key.id, info);
     }

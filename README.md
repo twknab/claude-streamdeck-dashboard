@@ -19,6 +19,19 @@ tells you where to look.
 The whole deck also **flashes** the instant any key turns red, to catch your
 peripheral vision. Press a key to bring Claude forward.
 
+## Sound
+
+Two chimes fire on the moments that matter, so you don't have to be watching:
+
+- 🔴 **Needs you** → a warm singing-bowl double-tap — zen, but it *wants* you.
+- 🟢 **Done** → a bright rising bell — happy and rewarding, when a task finishes.
+
+They play only on the **transition** into that state (not on every event), and a
+1.2s debounce keeps a burst of agents from stacking into noise. The chimes are
+plain WAVs bundled in the plugin — regenerate or retune them with
+`python3 scripts/gen-sounds.py`, or **delete a file in
+`com.tknab.claudeagents.sdPlugin/sounds/` to silence that chime.**
+
 ## How it works
 
 Two halves that never call each other — loosely coupled through small files, so
