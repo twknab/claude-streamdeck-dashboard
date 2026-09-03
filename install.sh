@@ -72,8 +72,8 @@ cat <<'DONE'
 ✅ Installed. Next:
    1. Open the Stream Deck app → drag the "Agent" action (category "Claude Agents")
       onto a row of keys.
-   2. In a Claude Code chat, run:  /streamdeck-sync <Your Sidebar Group Name>
-      (or just /streamdeck-sync to use the default group).
+   2. Make a Claude Code sidebar group named "Streamdeck", add your chats,
+      then run:  /streamdeck-sync
    3. Watch your keys light up: green = done, amber = working, red = needs you.
 
    Restart a Claude Code session so the new hooks load.

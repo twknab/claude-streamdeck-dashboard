@@ -69,7 +69,9 @@ That builds + links the plugin, installs the status hook (backing up your
 
 1. In the Stream Deck app, drag the **Agent** action (category **Claude Agents**)
    onto a row of keys.
-2. In a Claude Code chat: `/streamdeck-sync <Your Sidebar Group Name>`.
+2. Make a Claude Code sidebar group named **`Streamdeck`**, drop the chats you want
+   on the deck into it, then run `/streamdeck-sync` in any Claude Code chat. (Using a
+   different group name? Run `/streamdeck-sync <Your Group Name>` — it becomes the default.)
 3. Restart your Claude Code sessions so the new hooks load.
 
 ## Layout

@@ -16,7 +16,7 @@ This skill just refreshes **which chats** are on the deck and **their titles**.
    - If the user passed a group name as an argument, use it.
    - Else read the current one:
      ```bash
-     jq -r '.group // "Author-Watcher-Duo"' ~/.claude/state/streamdeck-group.json 2>/dev/null || echo "Author-Watcher-Duo"
+     jq -r '.group // "Streamdeck"' ~/.claude/state/streamdeck-group.json 2>/dev/null || echo "Streamdeck"
      ```
 
 2. **Fetch the group's chats** with `mcp__ccd_session_mgmt__list_sessions`, passing
