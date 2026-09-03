@@ -449,16 +449,17 @@ function paintFrame() {
  * Claude — the deep link silently no-ops for an unknown session, so focusing is
  * what guarantees a press does something. */
 function focusAgent(item) {
-  const OPEN = "/usr/bin/open"; // Stream Deck spawns us with a bare PATH — use the absolute path
+  // Best-effort jump to the exact chat (undocumented, may just no-op)…
   if (item && item.sessionId) {
     const sid = item.sessionId.startsWith("local_") ? item.sessionId : "local_" + item.sessionId;
-    execFile(OPEN, [`claude://code/needs-input?session=${sid}&source=desktop_action`], (e) =>
+    execFile("/usr/bin/open", [`claude://code/continue?session=${sid}&source=desktop_action`], (e) =>
       streamDeck.logger.info(`deep-link ${e ? "ERR " + e.message : "ok"}`),
     );
   }
-  // Focus by bundle id (more reliable than the app name).
-  execFile(OPEN, ["-b", "com.anthropic.claudefordesktop"], (e) =>
-    streamDeck.logger.info(`focus ${e ? "ERR " + e.message : "ok"}`),
+  // …then reliably bring Claude to the front. AppleScript `activate` forces the
+  // app forward even when `open` would be a silent no-op.
+  execFile("/usr/bin/osascript", ["-e", 'tell application id "com.anthropic.claudefordesktop" to activate'], (e) =>
+    streamDeck.logger.info(`activate ${e ? "ERR " + e.message : "ok"}`),
   );
 }
 
