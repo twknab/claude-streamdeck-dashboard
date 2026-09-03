@@ -23,8 +23,8 @@ peripheral vision. Press a key to bring Claude forward.
 
 Two chimes fire on the moments that matter, so you don't have to be watching:
 
-- 🔴 **Needs you** → a warm singing-bowl double-tap — zen, but it *wants* you.
-- 🟢 **Done** → a bright rising bell — happy and rewarding, when a task finishes.
+- 🔴 **Needs you** → a low singing-bowl double-strike (a soft rising fifth) — zen, but it *wants* you.
+- 🟢 **Done** → a soft rising bell (a calm major triad) — gently rewarding, when a task finishes.
 
 They play only on the **transition** into that state (not on every event), and a
 1.2s debounce keeps a burst of agents from stacking into noise. The chimes are

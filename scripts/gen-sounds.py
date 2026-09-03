@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Synthesize the two deck chimes as 16-bit mono WAVs (no deps).
 
-  done.wav   a bright, rising bell arpeggio  — happy / rewarding
-  needs.wav  a warm singing-bowl double-tap — zen, but it wants you
+  done.wav   a soft rising bell — gently rewarding, calm
+  needs.wav  a warm singing-bowl double-strike — zen, but it wants you
 
 Re-run to regenerate:  python3 scripts/gen-sounds.py
 Delete a .wav (or the whole sounds/ folder) to silence that chime.
@@ -10,14 +10,15 @@ Delete a .wav (or the whole sounds/ folder) to silence that chime.
 import math, struct, wave, os
 
 SR = 44100
+PI = math.pi
 
 
-def env(t, tau, attack=0.006):
-    a = t / attack if t < attack else 1.0        # short linear attack, no click
-    return min(1.0, a) * math.exp(-t / tau)      # exponential bell decay
+def env(t, tau, attack=0.02):
+    a = t / attack if t < attack else 1.0        # soft attack, no click
+    return min(1.0, a) * math.exp(-t / tau)      # long, gentle bell decay
 
 
-def render(duration, fn, peak=0.82):
+def render(duration, fn, peak=0.55):
     n = int(SR * duration)
     xs = [fn(i / SR) for i in range(n)]
     hi = max((abs(x) for x in xs), default=1.0) or 1.0
@@ -31,37 +32,36 @@ def write(path, raw):
     w.writeframes(raw); w.close()
 
 
-# --- done: C5 E5 G5 C6 arpeggio, each a soft bell, blooming into a major chord
+def warm(lt, f, tau):
+    """A soft, slightly-detuned bell voice — the beating twin gives it life."""
+    v = (0.5 * math.sin(2 * PI * f * lt)
+         + 0.5 * math.sin(2 * PI * (f * 1.004) * lt)   # detuned twin → slow shimmer
+         + 0.16 * math.sin(2 * PI * 2 * f * lt)
+         + 0.05 * math.sin(2 * PI * 2.7 * f * lt))      # a whisper of inharmonic bowl
+    return v * env(lt, tau)
+
+
+# --- done: a slow, soft rising triad (C5 E5 G5), warm and unhurried
 def done(t):
     s = 0.0
-    for i, f in enumerate((523.25, 659.25, 783.99, 1046.50)):
-        t0 = i * 0.072
+    for i, f in enumerate((523.25, 659.25, 783.99)):
+        t0 = i * 0.16
         if t >= t0:
-            lt = t - t0
-            s += (math.sin(2 * math.pi * f * lt)
-                  + 0.30 * math.sin(2 * math.pi * 2 * f * lt)
-                  + 0.10 * math.sin(2 * math.pi * 3 * f * lt)) * env(lt, 0.30) * 0.30
+            s += warm(t - t0, f, 0.7) * 0.6
     return s
 
 
-# --- needs: two warm singing-bowl strikes, a gentle rising G4 -> A4 ("hey…?")
-def bowl(lt, f):
-    return (1.00 * math.sin(2 * math.pi * f * lt)
-            + 0.20 * math.sin(2 * math.pi * f * 2.00 * lt)
-            + 0.12 * math.sin(2 * math.pi * f * 2.76 * lt)   # inharmonic — the "bowl"
-            + 0.07 * math.sin(2 * math.pi * f * 5.40 * lt)) * env(lt, 0.80, 0.012)
-
-
+# --- needs: two low singing-bowl strikes, a gentle rising fifth (E4 -> B4)
 def needs(t):
     s = 0.0
-    for t0, f, amp in ((0.0, 392.00, 0.55), (0.44, 440.00, 0.44)):
+    for t0, f, amp in ((0.0, 329.63, 0.55), (0.66, 493.88, 0.34)):
         if t >= t0:
-            s += bowl(t - t0, f) * amp
+            s += warm(t - t0, f, 1.25) * amp
     return s
 
 
 out = os.path.join(os.path.dirname(__file__), "..", "com.tknab.claudeagents.sdPlugin", "sounds")
 os.makedirs(out, exist_ok=True)
-write(os.path.join(out, "done.wav"), render(0.75, done))
-write(os.path.join(out, "needs.wav"), render(1.50, needs))
+write(os.path.join(out, "done.wav"), render(1.3, done))
+write(os.path.join(out, "needs.wav"), render(2.4, needs))
 print("wrote", os.path.abspath(out))
