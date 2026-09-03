@@ -18,7 +18,7 @@ def env(t, tau, attack=0.02):
     return min(1.0, a) * math.exp(-t / tau)      # long, gentle bell decay
 
 
-def render(duration, fn, peak=0.55, release=0.35):
+def render(duration, fn, peak=0.55, release=0.35, lead=0.12):
     n = int(SR * duration)
     rel = max(1, int(SR * release))
     xs = [fn(i / SR) for i in range(n)]
@@ -29,7 +29,11 @@ def render(duration, fn, peak=0.55, release=0.35):
         xs[i] *= (n - 1 - i) / rel
     hi = max((abs(x) for x in xs), default=1.0) or 1.0
     g = peak / hi
-    return b"".join(struct.pack("<h", int(max(-1.0, min(1.0, x * g)) * 32767)) for x in xs)
+    body = [int(max(-1.0, min(1.0, x * g)) * 32767) for x in xs]
+    # Lead-in silence so an idle/Bluetooth output wakes during silence, not on the
+    # first note — that onset crackle is a device-wake glitch, not the waveform.
+    body = [0] * int(SR * lead) + body
+    return b"".join(struct.pack("<h", v) for v in body)
 
 
 def write(path, raw):
