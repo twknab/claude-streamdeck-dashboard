@@ -157,10 +157,24 @@ function keyImage(item, t, age, disp, accent, flash) {
       : "";
   const hasChat = !!item;
   if (!hasChat) {
+    // Unbound key: no chat maps here yet. A freshly-added Agent button lands here
+    // and does nothing until `/streamdeck-sync` writes it into the group file, so
+    // spell that out instead of showing a dead black key.
+    const pulse = 0.5 + 0.5 * Math.sin(t * (TAU / 2.4)); // slow breath to catch the eye
+    const border = (0.28 + 0.34 * pulse).toFixed(3);
+    const iconOp = (0.72 + 0.2 * pulse).toFixed(3);
     const svg =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">` +
       `<rect x="3" y="3" width="${S - 6}" height="${S - 6}" rx="${RAD}" fill="#0B0B0F"/>` +
-      `<circle cx="${CX}" cy="${CY}" r="3" fill="#1C1C24"/>${flashRect}</svg>`;
+      // dashed "add me" affordance, gently breathing
+      `<rect x="7" y="7" width="${S - 14}" height="${S - 14}" rx="${RAD - 4}" fill="none" stroke="#6D6DF0" stroke-opacity="${border}" stroke-width="2" stroke-dasharray="7 6"/>` +
+      // sync glyph
+      `<text x="${CX}" y="52" font-size="44" text-anchor="middle" dominant-baseline="central" opacity="${iconOp}">🔄</text>` +
+      // call to action
+      `<text x="${CX}" y="${S - 42}" font-size="20" font-weight="700" font-family="-apple-system,Helvetica,Arial,sans-serif" fill="#000000" fill-opacity="0.45" text-anchor="middle">Run sync</text>` +
+      `<text x="${CX}" y="${S - 43}" font-size="20" font-weight="700" font-family="-apple-system,Helvetica,Arial,sans-serif" fill="#FFFFFF" text-anchor="middle">Run sync</text>` +
+      `<text x="${CX}" y="${S - 20}" font-size="14" font-weight="600" font-family="-apple-system,Helvetica,Arial,sans-serif" fill="#9A9AF0" text-anchor="middle">skill</text>` +
+      `${flashRect}</svg>`;
     return "data:image/svg+xml," + encodeURIComponent(svg);
   }
 
